@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { Link } from 'react-router-dom';
 import { FormattedMessage, injectIntl, intlShape, defineMessages } from 'react-intl';
-import Grid from 'material-ui/Grid';
-import Card from 'material-ui/Card';
-import Divider from 'material-ui/Divider';
-import Chip from 'material-ui/Chip';
-import Typography from 'material-ui/Typography';
+import { Grid, Card, Divider, Chip, Typography, withStyles } from 'material-ui';
 import classNames from 'classnames';
-import { withStyles } from 'material-ui/styles';
 
 import styles from './styles';
 import { getLocalDateTimeString, getEndTimeCountDownString } from '../../helpers/utility';
@@ -65,15 +59,14 @@ class EventCard extends React.PureComponent {
               <div className={classes.dashboardTime}>
                 {endTime !== undefined ? `${this.props.intl.formatMessage(cardMessages.ends)}: ${getLocalDateTimeString(endTime)}` : null}
               </div>
-              {unconfirmed ?
+              {unconfirmed && (
                 <Typography variant="body1">
                   <Chip
                     label={<FormattedMessage id="str.unconfirmed" defaultMessage="Unconfirmed" />}
                     className={classes.unconfirmedChip}
                   />
                 </Typography>
-                : null
-              }
+              )}
               <div className={classes.eventCardInfo}>
                 <div>
                   <i className={classNames(classes.dashBoardCardIcon, 'icon', 'iconfont', 'icon-ic_token')}></i>
@@ -85,6 +78,10 @@ class EventCard extends React.PureComponent {
                   {endTime !== undefined ? `${getEndTimeCountDownString(endTime, locale, localeMessages)}` : <FormattedMessage id="str.end" defaultMessage="Ended" />}
                 </div>
               </div>
+            </div>
+            <div>
+              <i className={classNames(classes.dashBoardCardIcon, 'icon', 'iconfont', 'icon-ic_timer')}></i>
+              {endTime !== undefined ? `${getEndTimeCountDownString(endTime)}` : 'Ended'}
             </div>
             <Divider />
             <div className={classNames(classes.eventCardSection, 'button')}>
