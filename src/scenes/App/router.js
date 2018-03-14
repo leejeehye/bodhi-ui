@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import asyncComponent from '../../helpers/AsyncFunc';
 
 
@@ -21,7 +21,7 @@ const AppRouter = ({ url, langHandler }) => {
         path={`${url}/bot-court`}
         component={asyncComponent(() => import('../Dashboard/vote'), langHandler)}
       />
-      {['/', '/bot-court', '/activities'].map((page) => (
+      {['', '/bot-court', '/activities'].map((page) => (
         <Route
           key={page}
           exact
@@ -49,7 +49,6 @@ const AppRouter = ({ url, langHandler }) => {
         component={asyncComponent(() => import('../Wallet/index'), langHandler)}
       />
       <Route
-        exact
         path={`${url}/activities`}
         component={asyncComponent(() => import('../Activities/index'), langHandler)}
       />

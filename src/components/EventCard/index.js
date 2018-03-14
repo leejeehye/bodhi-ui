@@ -57,7 +57,7 @@ class EventCard extends React.PureComponent {
                 {name}
               </Typography>
               <div className={classes.dashboardTime}>
-                {endTime !== undefined ? `${this.props.intl.formatMessage(cardMessages.ends)}: ${getLocalDateTimeString(endTime)}` : null}
+                {endTime !== undefined && `${this.props.intl.formatMessage(cardMessages.ends)}: ${getLocalDateTimeString(endTime)}`}
               </div>
               {unconfirmed && (
                 <Typography variant="body1">
@@ -78,10 +78,6 @@ class EventCard extends React.PureComponent {
                   {endTime !== undefined ? `${getEndTimeCountDownString(endTime, locale, localeMessages)}` : <FormattedMessage id="str.end" defaultMessage="Ended" />}
                 </div>
               </div>
-            </div>
-            <div>
-              <i className={classNames(classes.dashBoardCardIcon, 'icon', 'iconfont', 'icon-ic_timer')}></i>
-              {endTime !== undefined ? `${getEndTimeCountDownString(endTime)}` : 'Ended'}
             </div>
             <Divider />
             <div className={classNames(classes.eventCardSection, 'button')}>
