@@ -74,33 +74,19 @@ class EventCardsGrid extends Component {
   }
 
   loadMoreOracles = () => {
-    // if (!this.state.canLoadMore) return;
-    // this.delayLoadingMore();
-    console.log('COOL');
-    return
-    const prev = this.props.getMoreOracles.length;
-
     let { skip } = this.state;
     skip += 2;
     this.setState({ skip });
     const sortDirection = this.props.sortBy || SortBy.Ascending;
-    console.log('get called');
     this.props.getMoreOracles(
       [
         { token: Token.Qtum, status: OracleStatus.Voting },
         { token: Token.Qtum, status: OracleStatus.Created },
       ],
       { field: 'endTime', direction: sortDirection },
-      4,
+      2,
       skip,
-    ).then(() => {
-      const cur = this.props.getMoreOracles.length;
-      if (cur - prev < 2) {
-        this.setState({
-          // hasMoreItems: false,
-        });
-      }
-    });
+    );
   }
 
   executeGraphRequest(eventStatusIndex, sortBy) {
@@ -118,7 +104,7 @@ class EventCardsGrid extends Component {
             { token: Token.Qtum, status: OracleStatus.Created },
           ],
           { field: 'endTime', direction: sortDirection },
-          3,
+          2,
           0,
         );
         break;
@@ -277,22 +263,13 @@ class EventCardsGrid extends Component {
         throw new RangeError(`Invalid tab position ${eventStatusIndex}`);
       }
     }
-    const loader = <div className="loader">Loading ...</div>;
     return (
       <Grid container spacing={theme.padding.sm.value}>
-        {/* <InfiniteScroll
-          className={this.props.classes.scroll}
-          pageStart={0}
-          loadMore={this.loadMoreOracles}
-          hasMore={3 > 2}
-          loader={loader}
-          threshold={-250}
-          useWindow={false}
-        > */}
-        <ScrollListener loadMore={this.loadMoreOracles} className={this.props.classes.scroll}>
-          {rowItems}
-        </ScrollListener>
-        {/* </InfiniteScroll> */}
+        {/* <ScrollListener loadMore={this.loadMoreOracles} className={this.props.classes.scroll}> */}
+        {/* {rowItems} */}
+        {/* <button onClick={this.loadMoreOracles} > Click </button> */}
+        {/* </ScrollListener> */}
+        <InfiniteData className={this.props.classes.scroll} data={rowItems} loadMore={this.loadMoreOracles} />
       </Grid>
     );
   }
@@ -370,3 +347,53 @@ class ScrollListener extends Component {
     return <div {...props} ref={(r) => { this.container = findDOMNode(r); }} />
   };
 }
+
+
+var InfiniteData = React.createClass({
+
+  componentDidMount: function() {
+    window.addEventListener('scroll', this.handleOnScroll);
+
+  },
+
+  componentWillUnmount: function() {
+    window.removeEventListener('scroll', this.handleOnScroll);
+  },
+
+
+
+  handleOnScroll: function() {
+    // http://stackoverflow.com/questions/9439725/javascript-how-to-detect-if-browser-window-is-scrolled-to-bottom
+    var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+    var scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
+    var clientHeight = document.documentElement.clientHeight || window.innerHeight;
+    var scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
+
+    if (scrolledToBottom) {
+      this.props.loadMore();
+    }
+  },
+
+  render: function() {
+    return (
+      <div>
+        <div className={this.props.className} >
+          {this.props.data}
+        </div>
+        {/* {(() => {
+          if (this.state.requestSent) {
+            return(
+              <div className="data-loading">
+                <i className="fa fa-refresh fa-spin"></i>
+              </div>
+            );
+          } else {
+            return(
+              <div className="data-loading"></div>
+            );
+          }
+        })()} */}
+      </div>
+    );
+  }
+});
