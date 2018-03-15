@@ -13,6 +13,9 @@ export default function graphqlReducer(state = initState, action) {
     case actions.GET_ORACLES_RETURN: {
       return state.set('getOraclesReturn', action.value);
     }
+    case actions.GET_MORE_ORACLES_RETURN: {
+      return state.set('getOraclesReturn', [...state.get('getOraclesReturn'), ...action.value]);
+    }
     case actions.GET_TRANSACTIONS_RETURN: {
       return state.set('getTransactionsReturn', action.value);
     }

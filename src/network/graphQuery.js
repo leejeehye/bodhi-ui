@@ -11,7 +11,8 @@ class GraphQuery {
     this.type = type;
     this.filters = undefined;
     this.orderBy = undefined;
-    this.params = {};
+    this.limit = undefined;
+    this.skip = undefined;
   }
 
   setFilters(filters) {
@@ -22,8 +23,12 @@ class GraphQuery {
     this.orderBy = orderBy;
   }
 
-  addParam(key, value) {
-    this.params[key] = value;
+  setLimit(limit) {
+    this.limit = limit;
+  }
+
+  setSkip(skip) {
+    this.skip = skip;
   }
 
   formatObject(obj) {
@@ -71,49 +76,47 @@ class GraphQuery {
     return _.isEmpty(orderByStr) ? '' : `orderBy: ${orderByStr}`;
   }
 
-  getParamsString() {
-    let str = '';
-    const keys = Object.keys(this.params);
-    if (keys.length > 0) {
-      _.each(keys, (key) => {
-        if (!_.isEmpty(str)) {
-          str = str.concat(', ');
-        }
-
-        str = str.concat(`${key}: ${this.params[key]}`);
-      });
+  getLimitString() {
+    let limitStr = '';
+    if (this.limit) {
+      limitStr = this.limit;
     }
-    return str;
+    return limitStr === '' ? '' : `limit: ${limitStr}`;
+  }
+
+  getSkipString() {
+    let skipStr = '';
+    if (this.skip) {
+      skipStr = this.skip;
+    }
+    return skipStr === '' ? '' : `skip: ${skipStr}`;
   }
 
   build() {
     const filterStr = this.getFilterString();
     const orderByStr = this.getOrderByString();
-    const paramsStr = this.getParamsString();
-    const needsParentheses = !_.isEmpty(filterStr) || !_.isEmpty(orderByStr) || !_.isEmpty(paramsStr);
-
-    const parenthesesOpen = needsParentheses ? '(' : '';
-    const parenthesesClose = needsParentheses ? ')' : '';
+    const limitStr = this.getLimitString();
+    const skipStr = this.getSkipString();
+    const funcParamOpen = !_.isEmpty(filterStr) || !_.isEmpty(orderByStr) || !_.isEmpty(limitStr) || !_.isEmpty(skipStr) ? '(' : '';
+    const funcParamClose = !_.isEmpty(filterStr) || !_.isEmpty(orderByStr) || !_.isEmpty(limitStr) || !_.isEmpty(skipStr) ? ')' : '';
 
     const query = `
       query {
-        ${this.queryName}${parenthesesOpen}
+        ${this.queryName}${funcParamOpen}
           ${filterStr}
           ${orderByStr}
-          ${paramsStr}
-        ${parenthesesClose} {
+          ${limitStr}
+          ${skipStr}
+        ${funcParamClose} {
           ${getTypeDef(this.type)}
         }
       }
     `;
-
     return query;
   }
 
   async execute() {
     const query = this.build();
-    console.debug(query);
-
     const res = await client.query({
       query: gql`${query}`,
       fetchPolicy: 'network-only',
@@ -143,13 +146,19 @@ export function queryAllTopics(filters, orderBy) {
 * @param filters {Array} Array of objects for filtering. ie. [{ status: 'WAITRESULT' }, { status: 'OPENRESULTSET' }]
 * @param orderBy {Object} Object with order by fields. ie. { field: 'blockNum', direction: 'DESC' }
 */
-export function queryAllOracles(filters, orderBy) {
+export function queryAllOracles(filters, orderBy, limit, skip) {
   const request = new GraphQuery('allOracles', TYPE.oracle);
   if (!_.isEmpty(filters)) {
     request.setFilters(filters);
   }
   if (!_.isEmpty(orderBy)) {
     request.setOrderBy(orderBy);
+  }
+  if (_.isInteger(limit)) {
+    request.setLimit(limit);
+  }
+  if (_.isInteger(skip)) {
+    request.setSkip(skip);
   }
   return request.execute();
 }
@@ -172,12 +181,7 @@ export function queryAllTransactions(filters, orderBy) {
 
 /*
 * Queries syncInfo from GraphQL.
-* @param includeBalances {Boolean} Should include address balances array
 */
-export function querySyncInfo(includeBalance) {
-  const request = new GraphQuery('syncInfo', TYPE.syncInfo);
-  if (includeBalance) {
-    request.addParam('includeBalance', includeBalance);
-  }
-  return request.execute();
+export function querySyncInfo() {
+  return new GraphQuery('syncInfo', TYPE.syncInfo).execute();
 }

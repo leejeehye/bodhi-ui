@@ -1,13 +1,14 @@
 /* eslint react/no-array-index-key: 0, no-nested-ternary: 0 */ // Disable "Do not use Array index in keys" for options since they dont have unique identifier
-
-import React from 'react';
+/* eslint-disable */
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import Grid from 'material-ui/Grid';
 import { withStyles } from 'material-ui/styles';
 import { FormattedMessage, injectIntl, intlShape, defineMessages } from 'react-intl';
-
+import InfiniteScroll from 'react-infinite-scroller';
 import graphqlActions from '../../redux/Graphql/actions';
 import { Token, OracleStatus, SortBy, EventStatus } from '../../constants';
 import EventCard from '../EventCard/index';
@@ -37,7 +38,11 @@ const messages = defineMessages({
   },
 });
 
-class EventCardsGrid extends React.Component {
+class EventCardsGrid extends Component {
+  state = {
+    skip: 0,
+    // hasMoreItems: true,
+  }
   componentWillMount() {
     const {
       eventStatusIndex,
@@ -61,49 +66,41 @@ class EventCardsGrid extends React.Component {
     }
   }
 
-  render() {
-    const {
-      theme,
-      eventStatusIndex,
-      getTopicsReturn,
-      getOraclesReturn,
-    } = this.props;
+  delayLoadingMore() {
+    // this.setState({ canLoadMore: false });
+    setTimeout(() => {
+      // this.setState({ canLoadMore: true });
+    }, 700);
+  }
 
-    const topics = getTopicsReturn;
-    const oracles = getOraclesReturn;
-    let rowItems;
-    switch (eventStatusIndex) {
-      case EventStatus.Bet:
-      case EventStatus.Set:
-      case EventStatus.Vote:
-      case EventStatus.Finalize: {
-        if (oracles.length) {
-          rowItems = this.renderOracles(oracles, eventStatusIndex);
-        } else {
-          rowItems = <EventsEmptyBg />;
-        }
+  loadMoreOracles = () => {
+    // if (!this.state.canLoadMore) return;
+    // this.delayLoadingMore();
+    console.log('COOL');
+    return
+    const prev = this.props.getMoreOracles.length;
 
-        break;
+    let { skip } = this.state;
+    skip += 2;
+    this.setState({ skip });
+    const sortDirection = this.props.sortBy || SortBy.Ascending;
+    console.log('get called');
+    this.props.getMoreOracles(
+      [
+        { token: Token.Qtum, status: OracleStatus.Voting },
+        { token: Token.Qtum, status: OracleStatus.Created },
+      ],
+      { field: 'endTime', direction: sortDirection },
+      4,
+      skip,
+    ).then(() => {
+      const cur = this.props.getMoreOracles.length;
+      if (cur - prev < 2) {
+        this.setState({
+          // hasMoreItems: false,
+        });
       }
-      case EventStatus.Withdraw: {
-        if (topics.length) {
-          rowItems = this.renderTopics(topics);
-        } else {
-          rowItems = <EventsEmptyBg />;
-        }
-
-        break;
-      }
-      default: {
-        throw new RangeError(`Invalid tab position ${eventStatusIndex}`);
-      }
-    }
-
-    return (
-      <Grid container spacing={theme.padding.sm.value}>
-        {rowItems}
-      </Grid>
-    );
+    });
   }
 
   executeGraphRequest(eventStatusIndex, sortBy) {
@@ -121,6 +118,8 @@ class EventCardsGrid extends React.Component {
             { token: Token.Qtum, status: OracleStatus.Created },
           ],
           { field: 'endTime', direction: sortDirection },
+          3,
+          0,
         );
         break;
       }
@@ -241,6 +240,62 @@ class EventCardsGrid extends React.Component {
 
     return rowItems;
   }
+
+  render() {
+    const {
+      theme,
+      eventStatusIndex,
+      getTopicsReturn,
+      getOraclesReturn,
+    } = this.props;
+    const topics = getTopicsReturn;
+    const oracles = getOraclesReturn;
+    let rowItems;
+    switch (eventStatusIndex) {
+      case EventStatus.Bet:
+      case EventStatus.Set:
+      case EventStatus.Vote:
+      case EventStatus.Finalize: {
+        if (oracles.length) {
+          rowItems = this.renderOracles(oracles, eventStatusIndex);
+        } else {
+          rowItems = <EventsEmptyBg />;
+        }
+
+        break;
+      }
+      case EventStatus.Withdraw: {
+        if (topics.length) {
+          rowItems = this.renderTopics(topics);
+        } else {
+          rowItems = <EventsEmptyBg />;
+        }
+
+        break;
+      }
+      default: {
+        throw new RangeError(`Invalid tab position ${eventStatusIndex}`);
+      }
+    }
+    const loader = <div className="loader">Loading ...</div>;
+    return (
+      <Grid container spacing={theme.padding.sm.value}>
+        {/* <InfiniteScroll
+          className={this.props.classes.scroll}
+          pageStart={0}
+          loadMore={this.loadMoreOracles}
+          hasMore={3 > 2}
+          loader={loader}
+          threshold={-250}
+          useWindow={false}
+        > */}
+        <ScrollListener loadMore={this.loadMoreOracles} className={this.props.classes.scroll}>
+          {rowItems}
+        </ScrollListener>
+        {/* </InfiniteScroll> */}
+      </Grid>
+    );
+  }
 }
 
 EventCardsGrid.propTypes = {
@@ -254,6 +309,8 @@ EventCardsGrid.propTypes = {
   syncBlockNum: PropTypes.number,
   // eslint-disable-next-line react/no-typos
   intl: intlShape.isRequired,
+  getMoreOracles: PropTypes.func.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 EventCardsGrid.defaultProps = {
@@ -275,8 +332,41 @@ const mapStateToProps = (state) => ({
 function mapDispatchToProps(dispatch) {
   return {
     getTopics: (filters, orderBy) => dispatch(graphqlActions.getTopics(filters, orderBy)),
-    getOracles: (filters, orderBy) => dispatch(graphqlActions.getOracles(filters, orderBy)),
+    getOracles: (filters, orderBy, limit, skip) => dispatch(graphqlActions.getOracles(filters, orderBy, limit, skip)),
+    getMoreOracles: (filters, orderBy, limit, skip) => dispatch(graphqlActions.getMoreOracles(filters, orderBy, limit, skip)),
   };
 }
 
 export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, { withTheme: true })(EventCardsGrid)));
+
+class ScrollListener extends Component {
+  componentDidMount() {
+    console.log(this.container);
+    // if (this.container) {
+      this.container.addEventListener('scroll', this.onScroll);
+    // }
+  }
+
+  componentWillUnmount() {
+    // if (this.container) {
+      this.container.removeEventListener('scroll', this.onScroll);
+    // }
+  }
+
+  onScroll = () => {
+    console.log('CONTAINER: ', this.container);
+    if (!this.container) return;
+    const bottomBuffer = 0;
+    const offset = this.container.scrollHeight - this.container.offsetHeight;
+    const adjustedHeight = offset - bottomBuffer;
+
+    if (this.container.scrollTop > adjustedHeight) {
+      this.props.loadMore();
+    }
+  }
+
+  render() {
+    const { loadMore, ...props } = this.props
+    return <div {...props} ref={(r) => { this.container = findDOMNode(r); }} />
+  };
+}

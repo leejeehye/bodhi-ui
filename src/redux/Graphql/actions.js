@@ -9,10 +9,22 @@ const graphqlActions = {
 
   GET_ORACLES: 'GET_ORACLES',
   GET_ORACLES_RETURN: 'GET_ORACLES_RETURN',
-  getOracles: (filters, orderBy) => ({
+  getOracles: (filters, orderBy, limit, skip) => ({
     type: graphqlActions.GET_ORACLES,
     filters,
     orderBy,
+    limit,
+    skip,
+  }),
+
+  GET_MORE_ORACLES: 'GET_MORE_ORACLES',
+  GET_MORE_ORACLES_RETURN: 'GET_MORE_ORACLES_RETURN',
+  getMoreOracles: (filters, orderBy, limit, skip) => ({
+    type: graphqlActions.GET_MORE_ORACLES,
+    filters,
+    orderBy,
+    limit,
+    skip,
   }),
 
   GET_TRANSACTIONS: 'GET_TRANSACTIONS',

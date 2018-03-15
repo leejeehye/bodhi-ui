@@ -53,7 +53,7 @@ function processTopic(topic) {
 export function* getOraclesHandler() {
   yield takeEvery(actions.GET_ORACLES, function* getOraclesRequest(action) {
     try {
-      const result = yield call(queryAllOracles, action.filters, action.orderBy);
+      const result = yield call(queryAllOracles, action.filters, action.orderBy, action.limit, action.skip);
       const oracles = _.map(result, processOracle);
 
       yield put({
@@ -64,6 +64,26 @@ export function* getOraclesHandler() {
       console.error(err);
       yield put({
         type: actions.GET_ORACLES_RETURN,
+        value: [],
+      });
+    }
+  });
+}
+
+export function* getMoreOraclesHandler() {
+  yield takeEvery(actions.GET_MORE_ORACLES, function* getOraclesRequest(action) {
+    try {
+      const result = yield call(queryAllOracles, action.filters, action.orderBy, action.limit, action.skip);
+      const oracles = _.map(result, processOracle);
+
+      yield put({
+        type: actions.GET_MORE_ORACLES_RETURN,
+        value: oracles,
+      });
+    } catch (err) {
+      console.error(err);
+      yield put({
+        type: actions.GET_MORE_ORACLES_RETURN,
         value: [],
       });
     }
@@ -362,6 +382,7 @@ export default function* graphqlSaga() {
   yield all([
     fork(getTopicsHandler),
     fork(getOraclesHandler),
+    fork(getMoreOraclesHandler),
     fork(getTransactionsHandler),
     fork(getActionableItemCountHandler),
     fork(createTopicTxHandler),
