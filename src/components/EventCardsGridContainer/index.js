@@ -49,7 +49,7 @@ class EventCardsGrid extends Component {
       sortBy,
     } = this.props;
 
-    this.executeGraphRequest(eventStatusIndex, sortBy);
+    this.executeGraphRequest(eventStatusIndex, sortBy, 100, 0);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,7 +62,9 @@ class EventCardsGrid extends Component {
     if (eventStatusIndex !== this.props.eventStatusIndex
       || sortBy !== this.props.sortBy
       || syncBlockNum !== this.props.syncBlockNum) {
-      this.executeGraphRequest(eventStatusIndex, sortBy);
+      console.log('here');
+
+      this.executeGraphRequest(eventStatusIndex, sortBy, 2, 0);
     }
   }
 
@@ -75,26 +77,94 @@ class EventCardsGrid extends Component {
 
   loadMoreOracles = () => {
     let { skip } = this.state;
+    const {
+      eventStatusIndex,
+      sortBy,
+      getMoreOracles,
+      getTopics,
+    } = this.props;
     skip += 2;
     this.setState({ skip });
+    console.log(skip);
     const sortDirection = this.props.sortBy || SortBy.Ascending;
-    this.props.getMoreOracles(
-      [
-        { token: Token.Qtum, status: OracleStatus.Voting },
-        { token: Token.Qtum, status: OracleStatus.Created },
-      ],
-      { field: 'endTime', direction: sortDirection },
-      2,
-      skip,
-    );
+    // this.props.getMoreOracles(
+    //   [
+    //     { token: Token.Qtum, status: OracleStatus.Voting },
+    //     { token: Token.Qtum, status: OracleStatus.Created },
+    //   ],
+    //   { field: 'endTime', direction: sortDirection },
+    //   2,
+    //   skip,
+    // );
+
+    switch (eventStatusIndex) {
+      case EventStatus.Bet: {
+        getMoreOracles(
+          [
+            { token: Token.Qtum, status: OracleStatus.Voting },
+            { token: Token.Qtum, status: OracleStatus.Created },
+          ],
+          { field: 'endTime', direction: sortDirection },
+          2,
+          skip,
+        );
+        break;
+      }
+      case EventStatus.Set: {
+        getMoreOracles(
+          [
+            { token: Token.Qtum, status: OracleStatus.WaitResult },
+            { token: Token.Qtum, status: OracleStatus.OpenResultSet },
+          ],
+          { field: 'resultSetEndTime', direction: sortDirection },
+          2,
+          skip,
+        );
+        break;
+      }
+      case EventStatus.Vote: {
+        getMoreOracles(
+          [
+            { token: Token.Bot, status: OracleStatus.Voting },
+          ],
+          { field: 'endTime', direction: sortDirection },
+          2,
+          skip,
+        );
+        break;
+      }
+      case EventStatus.Finalize: {
+        getMoreOracles(
+          [
+            { token: Token.Bot, status: OracleStatus.WaitResult },
+          ],
+          { field: 'endTime', direction: sortDirection },
+          2,
+          skip,
+        );
+        break;
+      }
+      case EventStatus.Withdraw: {
+        getTopics(
+          [
+            { status: OracleStatus.Withdraw },
+          ],
+          { field: 'blockNum', direction: sortDirection },
+        );
+        break;
+      }
+      default: {
+        throw new RangeError(`Invalid tab position ${eventStatusIndex}`);
+      }
+    }
+      
   }
 
-  executeGraphRequest(eventStatusIndex, sortBy) {
+  executeGraphRequest(eventStatusIndex, sortBy, limit, skip) {
     const {
       getTopics,
       getOracles,
     } = this.props;
-
     const sortDirection = sortBy || SortBy.Ascending;
     switch (eventStatusIndex) {
       case EventStatus.Bet: {
@@ -104,8 +174,8 @@ class EventCardsGrid extends Component {
             { token: Token.Qtum, status: OracleStatus.Created },
           ],
           { field: 'endTime', direction: sortDirection },
-          2,
-          0,
+          limit,
+          skip,
         );
         break;
       }
@@ -116,6 +186,8 @@ class EventCardsGrid extends Component {
             { token: Token.Qtum, status: OracleStatus.OpenResultSet },
           ],
           { field: 'resultSetEndTime', direction: sortDirection },
+          limit,
+          skip,
         );
         break;
       }
@@ -125,6 +197,8 @@ class EventCardsGrid extends Component {
             { token: Token.Bot, status: OracleStatus.Voting },
           ],
           { field: 'endTime', direction: sortDirection },
+          limit,
+          skip,
         );
         break;
       }
@@ -237,6 +311,7 @@ class EventCardsGrid extends Component {
     const topics = getTopicsReturn;
     const oracles = getOraclesReturn;
     let rowItems;
+    console.log(this.props);
     switch (eventStatusIndex) {
       case EventStatus.Bet:
       case EventStatus.Set:
@@ -244,6 +319,7 @@ class EventCardsGrid extends Component {
       case EventStatus.Finalize: {
         if (oracles.length) {
           rowItems = this.renderOracles(oracles, eventStatusIndex);
+          console.log(rowItems);
         } else {
           rowItems = <EventsEmptyBg />;
         }
@@ -376,24 +452,20 @@ var InfiniteData = React.createClass({
 
   render: function() {
     return (
-      <div>
-        <div className={this.props.className} >
-          {this.props.data}
-        </div>
-        {/* {(() => {
-          if (this.state.requestSent) {
-            return(
-              <div className="data-loading">
-                <i className="fa fa-refresh fa-spin"></i>
-              </div>
-            );
-          } else {
-            return(
-              <div className="data-loading"></div>
-            );
-          }
-        })()} */}
+      <div className={this.props.className} >
+        {this.props.data}
       </div>
+        // if (this.state.requestSent) {
+        //   return(
+        //     <div className="data-loading">
+        //       <i className="fa fa-refresh fa-spin"></i>
+        //     </div>
+        //   );
+        // } else {
+        //   return(
+        //     <div className="data-loading"></div>
+        //   );
+        // }
     );
   }
 });
