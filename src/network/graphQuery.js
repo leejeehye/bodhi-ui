@@ -121,6 +121,7 @@ class GraphQuery {
       query: gql`${query}`,
       fetchPolicy: 'network-only',
     });
+    // console.log(query);
     return GraphParser.getParser(this.type)(res.data[this.queryName]);
   }
 }

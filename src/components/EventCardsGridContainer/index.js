@@ -49,7 +49,7 @@ class EventCardsGrid extends Component {
       sortBy,
     } = this.props;
 
-    this.executeGraphRequest(eventStatusIndex, sortBy, 100, 0);
+    this.executeGraphRequest(eventStatusIndex, sortBy, 2, 0);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,7 +62,7 @@ class EventCardsGrid extends Component {
     if (eventStatusIndex !== this.props.eventStatusIndex
       || sortBy !== this.props.sortBy
       || syncBlockNum !== this.props.syncBlockNum) {
-      console.log('here');
+      console.log(eventStatusIndex);
 
       this.executeGraphRequest(eventStatusIndex, sortBy, 2, 0);
     }
@@ -81,9 +81,11 @@ class EventCardsGrid extends Component {
       eventStatusIndex,
       sortBy,
       getMoreOracles,
+      getOraclesReturn,
       getTopics,
     } = this.props;
     skip += 2;
+
     this.setState({ skip });
     console.log(skip);
     const sortDirection = this.props.sortBy || SortBy.Ascending;
@@ -157,6 +159,8 @@ class EventCardsGrid extends Component {
         throw new RangeError(`Invalid tab position ${eventStatusIndex}`);
       }
     }
+    console.log('______________');
+    console.log(getOraclesReturn);
       
   }
 
@@ -208,6 +212,8 @@ class EventCardsGrid extends Component {
             { token: Token.Bot, status: OracleStatus.WaitResult },
           ],
           { field: 'endTime', direction: sortDirection },
+          limit,
+          skip,
         );
         break;
       }
@@ -311,7 +317,7 @@ class EventCardsGrid extends Component {
     const topics = getTopicsReturn;
     const oracles = getOraclesReturn;
     let rowItems;
-    console.log(this.props);
+    
     switch (eventStatusIndex) {
       case EventStatus.Bet:
       case EventStatus.Set:
@@ -319,7 +325,8 @@ class EventCardsGrid extends Component {
       case EventStatus.Finalize: {
         if (oracles.length) {
           rowItems = this.renderOracles(oracles, eventStatusIndex);
-          console.log(rowItems);
+          console.log(eventStatusIndex, rowItems);
+          console.log(this.state.skip);
         } else {
           rowItems = <EventsEmptyBg />;
         }
@@ -345,7 +352,7 @@ class EventCardsGrid extends Component {
         {/* {rowItems} */}
         {/* <button onClick={this.loadMoreOracles} > Click </button> */}
         {/* </ScrollListener> */}
-        <InfiniteData className={this.props.classes.scroll} data={rowItems} loadMore={this.loadMoreOracles} />
+        <InfiniteData className={this.props.classes.scroll} data={rowItems} loadMore={this.loadMoreOracles} hasMore = {rowItems.length >= this.state.skip + 2} />
       </Grid>
     );
   }
@@ -444,8 +451,8 @@ var InfiniteData = React.createClass({
     var scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
     var clientHeight = document.documentElement.clientHeight || window.innerHeight;
     var scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
-
-    if (scrolledToBottom) {
+    console.log(this.props.hasMore);
+    if (scrolledToBottom && this.props.hasMore) {
       this.props.loadMore();
     }
   },
