@@ -19,6 +19,7 @@ const initState = new Map({
   syncPercent: 0,
   syncBlockNum: 0,
   syncBlockTime: 0,
+  totalQtum: 0,
   walletUnlockDialogVisibility: false,
   walletEncrypted: false,
   walletUnlockedUntil: 0,
@@ -68,12 +69,15 @@ export default function appReducer(state = initState, action) {
         lastUsedAddress = newAddresses[0].address;
       }
 
+      const totalQtum = _.sumBy(newAddresses, (addressObj) => addressObj.qtum ? addressObj.qtum : 0);
+
       return state
         .set('syncPercent', action.syncInfo.syncPercent)
         .set('syncBlockNum', action.syncInfo.syncBlockNum)
         .set('syncBlockTime', Number(action.syncInfo.syncBlockTime))
         .set('walletAddresses', newAddresses)
-        .set('lastUsedAddress', lastUsedAddress);
+        .set('lastUsedAddress', lastUsedAddress)
+        .set('totalQtum', totalQtum);
     }
     case actions.GET_INSIGHT_TOTALS_RETURN: {
       return state.set('averageBlockTime', action.value.result.time_between_blocks);
