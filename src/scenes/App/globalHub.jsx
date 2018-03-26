@@ -15,6 +15,7 @@ let syncInfoInterval;
 @connect((state, props) => ({
   ...state.App.toJS(),
   txReturn: state.Graphql.get('txReturn'),
+  txCost: state.Graphql.get('txCost'),
 }), (dispatch, props) => ({
   checkWalletEncrypted: () => dispatch(appActions.checkWalletEncrypted()),
   getSyncInfo: (syncPercent) => dispatch(appActions.getSyncInfo(syncPercent)),

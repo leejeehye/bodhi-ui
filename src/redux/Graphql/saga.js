@@ -341,8 +341,8 @@ export function* createBetTxHandler() {
         action.params.senderAddress,
       );
       const txCost = {
-        address: senderAddress,
-        qtum: action.params.amount,
+        address: action.params.senderAddress,
+        qtum: Number(action.params.amount),
       };
 
       yield put({

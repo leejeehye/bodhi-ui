@@ -19,7 +19,6 @@ const initState = new Map({
   syncPercent: 0,
   syncBlockNum: 0,
   syncBlockTime: 0,
-  totalQtum: 0,
   walletUnlockDialogVisibility: false,
   walletEncrypted: false,
   walletUnlockedUntil: 0,
@@ -69,15 +68,12 @@ export default function appReducer(state = initState, action) {
         lastUsedAddress = newAddresses[0].address;
       }
 
-      const totalQtum = _.sumBy(newAddresses, (addressObj) => addressObj.qtum ? addressObj.qtum : 0);
-
       return state
         .set('syncPercent', action.syncInfo.syncPercent)
         .set('syncBlockNum', action.syncInfo.syncBlockNum)
         .set('syncBlockTime', Number(action.syncInfo.syncBlockTime))
         .set('walletAddresses', newAddresses)
-        .set('lastUsedAddress', lastUsedAddress)
-        .set('totalQtum', totalQtum);
+        .set('lastUsedAddress', lastUsedAddress);
     }
     case actions.GET_INSIGHT_TOTALS_RETURN: {
       return state.set('averageBlockTime', action.value.result.time_between_blocks);
@@ -108,14 +104,13 @@ export default function appReducer(state = initState, action) {
     }
     case actions.SUBTRACT_FROM_BALANCE: {
       const newAddresses = state.get('walletAddresses');
-      const index = _.indexOf(newAddresses, { address: action.address });
+      const index = _.findIndex(newAddresses, { address: action.address });
       if (index !== -1) {
-        if (action.qtum) {
-          newAddresses[index].qtum -= action.qtum;  
-        }
-        if (action.bot) {
-          newAddresses[index].bot -= action.bot;
-        }
+        newAddresses.splice(index, 1, {
+          address: action.address,
+          qtum: action.qtum ? newAddresses[index].qtum - action.qtum : newAddresses[index].qtum,
+          bot: action.bot ? newAddresses[index].bot - action.bot : newAddresses[index].bot,
+        });
       }
 
       return state.set('walletAddresses', newAddresses);
