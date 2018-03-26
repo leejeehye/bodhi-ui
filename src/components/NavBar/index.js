@@ -135,16 +135,7 @@ export default class NavBar extends React.PureComponent {
     );
   };
 
-  getTotalQTUM = () => {
-    const { walletAddresses } = this.props;
-
-    let total = 0;
-    if (walletAddresses && walletAddresses.length) {
-      total = _.sumBy(walletAddresses, (wallet) => wallet.qtum ? wallet.qtum : 0);
-    }
-
-    return total.toFixed(2);
-  };
+  getTotalQTUM = () => this.props.totalQtum.toFixed(2);
 
   getTotalBOT = () => {
     const { walletAddresses } = this.props;
