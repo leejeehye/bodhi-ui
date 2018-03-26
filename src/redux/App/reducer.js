@@ -1,7 +1,7 @@
 import { Map } from 'immutable';
 import _ from 'lodash';
 
-import { AppLocation, SortBy } from '../../constants';
+import { AppLocation, Token, SortBy } from '../../constants';
 import { getDefaultPath } from '../../helpers/urlSync';
 import { satoshiToDecimal } from '../../helpers/utility';
 import actions, { getView } from './actions';
@@ -105,6 +105,27 @@ export default function appReducer(state = initState, action) {
     }
     case actions.TOGGLE_CREATE_EVENT_DIALOG: {
       return state.set('createEventDialogVisible', action.isVisible);
+    }
+    case actions.SUBTRACT_FROM_BALANCE: {
+      const newAddresses = state.get('walletAddresses');
+      const addressObj = _.find(newAddresses, { address: action.address });
+      if (addressObj) {
+        switch (action.token) {
+          case Token.Qtum: {
+            addressObj.qtum -= action.amount;
+            break;
+          }
+          case Token.Bot: {
+            addressObj.bot -= action.amount;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid token type: ${action.token}`);
+          }
+        }
+      }
+      
+      return state.set('walletAddresses', newAddresses)
     }
     default: {
       return state;

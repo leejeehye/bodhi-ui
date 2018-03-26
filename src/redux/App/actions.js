@@ -87,5 +87,13 @@ const appActions = {
     type: appActions.TOGGLE_CREATE_EVENT_DIALOG,
     isVisible,
   }),
+
+  SUBTRACT_FROM_BALANCE: 'SUBTRACT_FROM_BALANCE',
+  subtractFromBalance: (address, token, amount) => ({
+    type: appActions.SUBTRACT_FROM_BALANCE,
+    address,
+    token,
+    amount,
+  }),
 };
 export default appActions;
