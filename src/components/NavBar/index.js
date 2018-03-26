@@ -10,11 +10,19 @@ import { NavLink } from './components/NavLink/index';
 import { RouterPath, AppLocation, EventStatus } from '../../constants';
 import styles from './styles';
 
-class NavBar extends Component {
+@injectIntl
+@withStyles(styles, { withTheme: true })
+@connect((state, props) => ({
+  ...state.App.toJS(),
+  actionableItemCount: state.Graphql.get('actionableItemCount'),
+}), (dispatch, props) => ({
+}))
+export default class NavBar extends React.PureComponent {
   static propTypes = {
     classes: PropTypes.object.isRequired,
     walletAddresses: PropTypes.array.isRequired,
     actionableItemCount: PropTypes.object,
+    totalQtum: PropTypes.number.isRequired,
     langHandler: PropTypes.func,
     appLocation: PropTypes.string.isRequired,
   };
@@ -23,14 +31,6 @@ class NavBar extends Component {
     actionableItemCount: undefined,
     langHandler: undefined,
   };
-
-  constructor(props) {
-    super(props);
-
-    this.renderActivitiesButtonWithBadge = this.renderActivitiesButtonWithBadge.bind(this);
-    this.getTotalQTUM = this.getTotalQTUM.bind(this);
-    this.getTotalBOT = this.getTotalBOT.bind(this);
-  }
 
   render() {
     const { classes, appLocation } = this.props;
@@ -86,8 +86,33 @@ class NavBar extends Component {
     );
   }
 
-  renderActivitiesButtonWithBadge() {
-    const { classes, actionableItemCount } = this.props;
+  renderCurrentTabArrow = (currentPath) => {
+    const {
+      classes,
+      match,
+    } = this.props;
+
+    return (
+      <img
+        src="/images/nav-arrow.png"
+        alt="nav-arrow"
+        className={
+          classNames(
+            classes.navArrow,
+            currentPath === RouterPath.myWallet || currentPath === RouterPath.set ? 'right' : ''
+          )
+        }
+      />
+    );
+  };
+
+  renderActivitiesButtonWithBadge = () => {
+    const {
+      classes,
+      match,
+      appLocation,
+      actionableItemCount,
+    } = this.props;
 
     if (actionableItemCount.totalCount > 0) {
       return (
@@ -108,9 +133,9 @@ class NavBar extends Component {
         </Button>
       </NavLink>
     );
-  }
+  };
 
-  getTotalQTUM() {
+  getTotalQTUM = () => {
     const { walletAddresses } = this.props;
 
     let total = 0;
@@ -119,9 +144,9 @@ class NavBar extends Component {
     }
 
     return total.toFixed(2);
-  }
+  };
 
-  getTotalBOT() {
+  getTotalBOT = () => {
     const { walletAddresses } = this.props;
 
     let total = 0;
@@ -130,16 +155,7 @@ class NavBar extends Component {
     }
 
     return total.toFixed(2);
-  }
+  };
 }
 
 const NavSection = withStyles(styles)(({ classes, ...props }) => <div {...props} className={classes.navSection} />);
-
-const mapStateToProps = (state) => ({
-  ...state.App.toJS(),
-  actionableItemCount: state.Graphql.get('actionableItemCount'),
-});
-
-const mapDispatchToProps = (dispatch) => ({});
-
-export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, { withTheme: true })(NavBar)));

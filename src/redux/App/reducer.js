@@ -124,8 +124,8 @@ export default function appReducer(state = initState, action) {
           }
         }
       }
-      
-      return state.set('walletAddresses', newAddresses)
+
+      return state.set('walletAddresses', newAddresses);
     }
     default: {
       return state;
