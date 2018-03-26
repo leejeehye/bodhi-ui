@@ -89,11 +89,11 @@ const appActions = {
   }),
 
   SUBTRACT_FROM_BALANCE: 'SUBTRACT_FROM_BALANCE',
-  subtractFromBalance: (address, token, amount) => ({
+  subtractFromBalance: (address, qtum, bot) => ({
     type: appActions.SUBTRACT_FROM_BALANCE,
     address,
-    token,
-    amount,
+    qtum,
+    bot,
   }),
 };
 export default appActions;

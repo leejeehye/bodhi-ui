@@ -77,7 +77,7 @@ export default function graphqlReducer(state = initState, action) {
         return state.set('txReturn', { error: action.error });
       }
       return state.set('txReturn', action.value)
-        .set('txCost', action.cost);
+        .set('txCost', action.txCost);
     }
     case actions.CLEAR_TX_RETURN: {
       return state.set('txReturn', undefined)

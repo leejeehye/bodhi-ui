@@ -340,10 +340,15 @@ export function* createBetTxHandler() {
         action.params.amount,
         action.params.senderAddress,
       );
+      const txCost = {
+        address: senderAddress,
+        qtum: action.params.amount,
+      };
 
       yield put({
         type: actions.CREATE_BET_TX_RETURN,
         value: tx.data.createBet,
+        txCost,
       });
     } catch (err) {
       yield put({

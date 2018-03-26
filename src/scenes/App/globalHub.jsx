@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { compose, withApollo } from 'react-apollo';
+import { withApollo } from 'react-apollo';
 import _ from 'lodash';
 
 import appActions from '../../redux/App/actions';
@@ -11,17 +11,33 @@ import AppConfig from '../../config/app';
 
 let syncInfoInterval;
 
-class GlobalHub extends React.PureComponent {
+@withApollo
+@connect((state, props) => ({
+  ...state.App.toJS(),
+  txReturn: state.Graphql.get('txReturn'),
+}), (dispatch, props) => ({
+  checkWalletEncrypted: () => dispatch(appActions.checkWalletEncrypted()),
+  getSyncInfo: (syncPercent) => dispatch(appActions.getSyncInfo(syncPercent)),
+  onSyncInfo: (syncInfo) => dispatch(appActions.onSyncInfo(syncInfo)),
+  subtractFromBalance: (address, token, amount) => dispatch(appActions.subtractFromBalance(address, token, amount)),
+  togglePendingTxsSnackbar: (isVisible) => dispatch(appActions.togglePendingTxsSnackbar(isVisible)),
+  getActionableItemCount: (walletAddresses) => dispatch(graphqlActions.getActionableItemCount(walletAddresses)),
+  getPendingTransactions: () => dispatch(graphqlActions.getPendingTransactions()),
+}))
+
+export default class GlobalHub extends React.PureComponent {
   static propTypes = {
     client: PropTypes.object,
     getSyncInfo: PropTypes.func.isRequired,
     onSyncInfo: PropTypes.func.isRequired,
+    subtractFromBalance: PropTypes.func.isRequired,
     syncPercent: PropTypes.number.isRequired,
     syncBlockNum: PropTypes.number.isRequired,
     walletAddresses: PropTypes.array.isRequired,
     checkWalletEncrypted: PropTypes.func.isRequired,
     getActionableItemCount: PropTypes.func.isRequired,
     txReturn: PropTypes.object,
+    txCost: PropTypes.object,
     getPendingTransactions: PropTypes.func.isRequired,
     togglePendingTxsSnackbar: PropTypes.func.isRequired,
   };
@@ -29,6 +45,7 @@ class GlobalHub extends React.PureComponent {
   static defaultProps = {
     client: undefined,
     txReturn: undefined,
+    txCost: undefined,
   };
 
   componentWillMount() {
@@ -63,7 +80,9 @@ class GlobalHub extends React.PureComponent {
       walletAddresses,
       txReturn,
       togglePendingTxsSnackbar,
+      txCost,
       getPendingTransactions,
+      subtractFromBalance,
     } = this.props;
 
     // Disable the syncInfo polling since we will get new syncInfo from the subscription
@@ -86,6 +105,11 @@ class GlobalHub extends React.PureComponent {
     if ((!txReturn && nextProps.txReturn)
       || (syncPercent === 100 && syncBlockNum !== nextProps.syncBlockNum)) {
       getPendingTransactions();
+    }
+
+    // Subtract from wallet address for successful tx
+    if (!txCost && nextProps.txCost) {
+      subtractFromBalance(nextProps.txCost.address, nextProps.txCost.qtum, nextProps.txCost.bot);
     }
   }
 
@@ -113,22 +137,3 @@ class GlobalHub extends React.PureComponent {
     });
   };
 }
-
-const mapStateToProps = (state) => ({
-  ...state.App.toJS(),
-  txReturn: state.Graphql.get('txReturn'),
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  checkWalletEncrypted: () => dispatch(appActions.checkWalletEncrypted()),
-  getSyncInfo: (syncPercent) => dispatch(appActions.getSyncInfo(syncPercent)),
-  onSyncInfo: (syncInfo) => dispatch(appActions.onSyncInfo(syncInfo)),
-  togglePendingTxsSnackbar: (isVisible) => dispatch(appActions.togglePendingTxsSnackbar(isVisible)),
-  getActionableItemCount: (walletAddresses) => dispatch(graphqlActions.getActionableItemCount(walletAddresses)),
-  getPendingTransactions: () => dispatch(graphqlActions.getPendingTransactions()),
-});
-
-export default compose(
-  withApollo,
-  connect(mapStateToProps, mapDispatchToProps),
-)(GlobalHub);
