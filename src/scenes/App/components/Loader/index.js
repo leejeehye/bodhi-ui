@@ -11,9 +11,14 @@ import AppConfig from '../../../../config/app';
 import styles from './styles';
 import { getLocalDateTimeString } from '../../../../helpers/utility';
 
-const MIN_BLOCK_COUNT_GAP = 1;
 
-class Loader extends React.PureComponent {
+@withStyles(styles)
+@connect((state) => ({
+  syncPercent: state.App.get('syncPercent'),
+  syncBlockNum: state.App.get('syncBlockNum'),
+  syncBlockTime: state.App.get('syncBlockTime'),
+}))
+export default class Loader extends React.PureComponent {
   static propTypes = {
     classes: PropTypes.object.isRequired,
     syncPercent: PropTypes.number.isRequired,
@@ -28,23 +33,19 @@ class Loader extends React.PureComponent {
     return (
       <div
         className={classes.loaderBg}
-        style={
-          {
-            opacity: hideLoader ? 0 : 1,
-            display: hideLoader ? 'none' : 'block',
-          }
-        }
+        style={{
+          opacity: hideLoader ? 0 : 1,
+          display: hideLoader ? 'none' : 'block',
+        }}
       >
         <div className={classes.loaderWrapper}>
           <div className={classes.loaderLogoWrapper}>
             <img className={classes.loaderGif} src="/images/loader.gif" alt="Loading..." />
           </div>
-          <div className={classes.loaderPercentWrapper}>
-            <Typography variant="display1" className={classes.loaderPercent}>{syncPercent}</Typography>%
-            <p>
-              <FormattedMessage id="str.blockSync" defaultMessage="Blockchain syncing." />
-              <FormattedMessage id="str.wait" defaultMessage="Please wait." />
-            </p>
+          <div className={classes.loaderInfoWrapper}>
+            <Typography variant="display1" className={classes.loaderPercent}>{syncPercent || 0}</Typography>%
+            <p><FormattedMessage id="str.blockSync" defaultMessage="Blockchain syncing." /></p>
+            <p><FormattedMessage id="str.wait" defaultMessage="Please wait." /></p>
           </div>
           <div className={classes.loaderProgressWrapper}>
             <LinearProgress className={classes.loaderProgress} variant="determinate" value={syncPercent} />
@@ -68,14 +69,3 @@ class Loader extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = (state) => ({
-  syncPercent: state.App.get('syncPercent'),
-  syncBlockNum: state.App.get('syncBlockNum'),
-  syncBlockTime: state.App.get('syncBlockTime'),
-});
-
-const mapDispatchToProps = (dispatch) => ({
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Loader));

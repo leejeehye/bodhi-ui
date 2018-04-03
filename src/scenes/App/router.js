@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 import asyncComponent from '../../helpers/AsyncFunc';
-import NavBar from '../../components/NavBar/index';
 import { RouterPath } from '../../constants';
 
 export default class AppRouter extends React.Component {
