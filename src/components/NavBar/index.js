@@ -85,33 +85,8 @@ export default class NavBar extends React.PureComponent {
     );
   }
 
-  renderCurrentTabArrow = (currentPath) => {
-    const {
-      classes,
-      match,
-    } = this.props;
-
-    return (
-      <img
-        src="/images/nav-arrow.png"
-        alt="nav-arrow"
-        className={
-          classNames(
-            classes.navArrow,
-            currentPath === RouterPath.myWallet || currentPath === RouterPath.set ? 'right' : ''
-          )
-        }
-      />
-    );
-  };
-
   renderActivitiesButtonWithBadge = () => {
-    const {
-      classes,
-      match,
-      appLocation,
-      actionableItemCount,
-    } = this.props;
+    const { classes, actionableItemCount } = this.props;
 
     if (actionableItemCount.totalCount > 0) {
       return (
