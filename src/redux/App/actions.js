@@ -50,6 +50,19 @@ const appActions = {
     timeout,
   }),
 
+  GET_TRANSACTION_COST: 'GET_TRANSACTION_COST',
+  GET_TRANSACTION_COST_RETURN: 'GET_TRANSACTION_COST_RETURN',
+  getTransactionCost: (txType, token, amount, optionIdx, topicAddress, oracleAddress, senderAddress) => ({
+    type: appActions.GET_TRANSACTION_COST,
+    txType,
+    token,
+    amount,
+    optionIdx,
+    topicAddress,
+    oracleAddress,
+    senderAddress,
+  }),
+
   CLEAR_ERROR_APP: 'CLEAR_ERROR_APP',
   clearErrorApp: () => ({
     type: appActions.CLEAR_ERROR_APP,
