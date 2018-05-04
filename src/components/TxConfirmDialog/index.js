@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import Button from 'material-ui/Button';
+import { Button, Typography, withStyles } from 'material-ui';
 import Dialog, { DialogTitle, DialogContent, DialogActions } from 'material-ui/Dialog';
 import { FormattedMessage, injectIntl, intlShape, defineMessages } from 'react-intl';
 
@@ -65,3 +65,18 @@ export default class TxConfirmDialog extends Component {
     this.props.clearTxConfirm();
   }
 }
+
+const TransactionCost = injectIntl(withStyles(styles, { withTheme: true })(({ classes, intl, txCosts }) => (
+  <div>
+    <FormattedMessage id="txConfirm.confirmTransactions" defaultMessage="Confirm Transactions:" />
+    <ol>
+      {txCosts.map((item) => {
+        return (
+          <li>
+            
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+)));

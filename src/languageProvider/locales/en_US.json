@@ -247,6 +247,7 @@
   "transactionSentDialog.waitingMsg": "Transaction sent. Waiting for confirmations.",
   "tx.approveBotTransfer": "Approve BOT Transfer",
   "tx.resetApproval": "Reset Approval",
+  "txConfirm.confirmTransactions": "Confirm Transactions:",
   "txConfirm.message": "You are about to {txDesc} for {txAmount} {txToken}. Please click OK to continue.",
   "txConfirm.title": "Please Confirm Your Transaction",
   "txConfirmMsg.bet": "bet on {option}",
