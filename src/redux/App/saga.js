@@ -118,6 +118,39 @@ export function* unlockWalletRequestHandler() {
   });
 }
 
+export function* getTransactionCostRequestHandler() {
+  yield takeEvery(actions.GET_TRANSACTION_COST, function* getTransactionCostRequest(action) {
+    try {
+      const txCosts = yield call(request, Routes.api.transactionCost, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: action.txType,
+          token: action.token,
+          amount: action.amount,
+          optionIdx: action.optionIdx,
+          topicAddress: action.topicAddress,
+          oracleAddress: action.oracleAddress,
+          senderAddress: action.senderAddress,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      yield put({
+        type: actions.GET_TRANSACTION_COST_RETURN,
+        txCosts,
+      });
+    } catch (error) {
+      yield put({
+        type: actions.GET_TRANSACTION_COST_RETURN,
+        error: {
+          route: Routes.api.transactionCost,
+          message: error.message,
+        },
+      });
+    }
+  });
+}
+
 export default function* appSaga() {
   yield all([
     fork(syncInfoRequestHandler),

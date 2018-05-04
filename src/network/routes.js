@@ -21,6 +21,7 @@ export default {
     winnings: `${HTTP_ROUTE}/winnings`,
     betBalances: `${HTTP_ROUTE}/bet-balances`,
     voteBalances: `${HTTP_ROUTE}/vote-balances`,
+    transactionCost: `${HTTP_ROUTE}/transaction-cost`,
   },
   insight: {
     totals: `${BASE_INSIGHT}/statistics/total`,
