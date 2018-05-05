@@ -249,6 +249,7 @@
   "tx.resetApproval": "Reset Approval",
   "txConfirm.confirmTransactions": "Confirm Transactions:",
   "txConfirm.message": "You are about to {txDesc} for {txAmount} {txToken}. Please click OK to continue.",
+  "txConfirm.gasLimitXGasCostY": "Gas Limit: {gasLimit}, Gas Cost: {gasCost}",
   "txConfirm.title": "Please Confirm Your Transaction",
   "txConfirmMsg.bet": "bet on {option}",
   "txConfirmMsg.create": "create an event",

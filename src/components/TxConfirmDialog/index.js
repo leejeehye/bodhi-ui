@@ -7,6 +7,7 @@ import Dialog, { DialogTitle, DialogContent, DialogActions } from 'material-ui/D
 import { FormattedMessage, injectIntl, intlShape, defineMessages } from 'react-intl';
 
 import appActions from '../../redux/App/actions';
+import { getTxTypeString } from '../../helpers/stringUtil';
 
 const messages = defineMessages({
   confirmMessage: {
@@ -66,17 +67,30 @@ export default class TxConfirmDialog extends Component {
   }
 }
 
-const TransactionCost = injectIntl(withStyles(styles, { withTheme: true })(({ classes, intl, txCosts }) => (
-  <div>
-    <FormattedMessage id="txConfirm.confirmTransactions" defaultMessage="Confirm Transactions:" />
-    <ol>
-      {txCosts.map((item) => {
-        return (
-          <li>
-            
-          </li>
-        );
-      })}
-    </ol>
-  </div>
-)));
+const TransactionCost = injectIntl(withStyles(styles, { withTheme: true })(({ classes, intl, txCosts }) => {
+  const { locale, messages: localeMessages } = intl;
+
+  return (
+    <div>
+      <FormattedMessage id="txConfirm.confirmTransactions" defaultMessage="Confirm Transactions:" />
+      <ol>
+        {txCosts.map((item) => {
+          return (
+            <li>
+              <Typography variant="body1">
+                {`${getTxTypeString(item.txType, locale, localeMessages)} ${amount} ${token}`}
+              </Typography>
+              <Typography variant="body1">
+                <FormattedMessage
+                  id="txConfirm.gasLimitXGasCostY"
+                  defaultMessage="Gas Limit: {gasLimit}, Gas Cost: {gasCost}"
+                  values={{ gasLimit: item.gasLimit, gasCost: item.gasCost }}
+                />
+              </Typography>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}));
