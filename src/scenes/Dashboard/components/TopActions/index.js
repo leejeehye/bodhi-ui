@@ -14,7 +14,7 @@ import { withStyles } from 'material-ui/styles';
 import appActions from '../../../../redux/App/actions';
 import dashboardActions from '../../../../redux/Dashboard/actions';
 import topicActions from '../../../../redux/Topic/actions';
-import { SortBy } from '../../../../constants';
+import { SortOption, SortBy, SortMethod } from '../../../../constants';
 import Tracking from '../../../../helpers/mixpanelUtil';
 import styles from './styles';
 
@@ -23,7 +23,6 @@ import styles from './styles';
 @withStyles(styles, { withTheme: true })
 @connect((state) => ({
   lastUsedAddress: state.App.get('lastUsedAddress'),
-  sortBy: state.Dashboard.get('sortBy'),
 }), (dispatch) => ({
   toggleCreateEventDialog: (isVisible) => dispatch(appActions.toggleCreateEventDialog(isVisible)),
   sortOrderChanged: (sortBy) => dispatch(dashboardActions.sortOrderChanged(sortBy)),
@@ -32,7 +31,6 @@ import styles from './styles';
 export default class TopActions extends Component {
   static propTypes = {
     classes: PropTypes.object.isRequired,
-    sortBy: PropTypes.string,
     sortOrderChanged: PropTypes.func,
     lastUsedAddress: PropTypes.string.isRequired,
     toggleCreateEventDialog: PropTypes.func.isRequired,
@@ -40,12 +38,38 @@ export default class TopActions extends Component {
   };
 
   static defaultProps = {
-    sortBy: SortBy.Ascending,
     sortOrderChanged: undefined,
   };
 
+  state = {
+    sortMethod: 'Ending Soon',
+  }
+
   onSortOptionSelected = (event) => {
-    this.props.sortOrderChanged(event.target.value);
+    let sortOption;
+    let sortOrder;
+
+    switch (event.target.value) {
+      case SortMethod.LatestCreated: {
+        this.setState({ sortMethod: 'Latest Created' });
+        sortOption = SortOption.CreationTime;
+        sortOrder = SortBy.Descending;
+        break;
+      }
+      case SortMethod.EndingSoon: {
+        this.setState({ sortMethod: 'Ending Soon' });
+        sortOption = SortOption.EndingTime;
+        sortOrder = SortBy.Ascending;
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    const sortBy = { sortOption, sortOrder };
+    console.log('​TopActions -> onSortOptionSelected -> sortOption', sortOption);
+    console.log('​TopActions -> onSortOptionSelected -> sortBy', sortBy);
+    this.props.sortOrderChanged(sortBy);
   };
 
   onCreateDialogOpen = () => {
@@ -62,8 +86,7 @@ export default class TopActions extends Component {
   };
 
   render() {
-    const { classes, sortBy } = this.props;
-
+    const { classes } = this.props;
     return (
       <Grid container className={classes.dashboardActionsWrapper}>
         <Grid item xs={8}>
@@ -84,9 +107,9 @@ export default class TopActions extends Component {
           </span>
           <Card className={classes.dashboardActionsSort}>
             <FormControl>
-              <Select disableUnderline value={sortBy} onChange={this.onSortOptionSelected}>
-                <MenuItem value={SortBy.Ascending}><FormattedMessage id="sort.ascEndTime" defaultMessage="End Earliest" /></MenuItem>
-                <MenuItem value={SortBy.Descending}><FormattedMessage id="sort.descEndTime" defaultMessage="End Latest" /></MenuItem>
+              <Select disableUnderline value={this.state.sortMethod} onChange={this.onSortOptionSelected}>
+                <MenuItem value="Ending Soon"><FormattedMessage id="sort.endingSoon" defaultMessage="Ending Soon" /></MenuItem>
+                <MenuItem value="Latest Created"><FormattedMessage id="sort.latestCreated" defaultMessage="Latest Created" /></MenuItem>
               </Select>
             </FormControl>
           </Card>

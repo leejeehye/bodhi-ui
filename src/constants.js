@@ -78,4 +78,15 @@ module.exports = {
     Ascending: 'ASC',
     Descending: 'DESC',
   },
+
+  SortOption: {
+    CreationTime: 'blockNum',
+    EndingTime: 'endTime',
+    Funding: 'funding',
+  },
+
+  SortMethod: {
+    LatestCreated: 'Latest Created',
+    EndingSoon: 'Ending Soon',
+  },
 };

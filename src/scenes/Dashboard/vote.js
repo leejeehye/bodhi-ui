@@ -6,7 +6,7 @@ import { withStyles } from 'material-ui/styles';
 
 import TopActions from './components/TopActions/index';
 import EventCardsGridContainer from '../../components/EventCardsGridContainer/index';
-import { EventStatus, SortBy } from '../../constants';
+import { EventStatus } from '../../constants';
 import styles from './styles';
 
 
@@ -16,11 +16,11 @@ import styles from './styles';
 }))
 export default class Dashboard extends Component {
   static propTypes = {
-    sortBy: PropTypes.string,
+    sortBy: PropTypes.object,
   }
 
   static defaultProps = {
-    sortBy: SortBy.Ascending,
+    sortBy: {},
   }
 
   render() {

@@ -65,7 +65,7 @@ export default class EventCardsGrid extends Component {
     getOracles: PropTypes.func,
     oracles: PropTypes.object,
     eventStatusIndex: PropTypes.number.isRequired,
-    sortBy: PropTypes.string,
+    sortBy: PropTypes.object,
     syncBlockNum: PropTypes.number,
     setAppLocation: PropTypes.func.isRequired,
     walletAddresses: PropTypes.array.isRequired,
@@ -76,7 +76,7 @@ export default class EventCardsGrid extends Component {
     topics: {},
     getOracles: undefined,
     oracles: {},
-    sortBy: SortBy.Ascending,
+    sortBy: {},
     syncBlockNum: undefined,
   };
 
@@ -175,8 +175,8 @@ export default class EventCardsGrid extends Component {
 
   executeGraphRequest(eventStatusIndex, sortBy, limit, skip, walletAddresses) {
     const { getActionableTopics, getOracles } = this.props;
-
-    const sortDirection = sortBy || SortBy.Ascending;
+    const sortOption = sortBy.sortOption || 'endTime';
+    const sortDirection = sortBy.sortOrder || SortBy.Ascending;
     switch (eventStatusIndex) {
       case EventStatus.Bet: {
         getOracles(
@@ -184,7 +184,7 @@ export default class EventCardsGrid extends Component {
             { token: Token.Qtum, status: OracleStatus.Voting },
             { token: Token.Qtum, status: OracleStatus.Created },
           ],
-          { field: 'endTime', direction: sortDirection },
+          { field: sortOption, direction: sortDirection },
           limit,
           skip,
         );
@@ -213,7 +213,7 @@ export default class EventCardsGrid extends Component {
           [
             { token: Token.Bot, status: OracleStatus.Voting },
           ],
-          { field: 'endTime', direction: sortDirection },
+          { field: sortOption, direction: sortDirection },
           limit,
           skip,
         );
