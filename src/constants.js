@@ -81,12 +81,15 @@ module.exports = {
 
   SortOption: {
     CreationTime: 'blockNum',
-    EndingTime: 'endTime',
-    Funding: 'funding',
+    StartTime: 'startTime',
+    EndTime: 'endTime',
+    ResultSetStartTime: 'resultSetStartTime',
+    ResultSetEndTime: 'resultSetEndTime',
   },
 
   SortMethod: {
     LatestCreated: 'Latest Created',
     EndingSoon: 'Ending Soon',
+    Upcoming: 'Upcoming',
   },
 };

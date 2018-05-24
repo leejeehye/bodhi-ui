@@ -28,7 +28,7 @@ export default class Dashboard extends Component {
 
     return (
       <div>
-        <TopActions />
+        <TopActions eventStatusIndex={EventStatus.Bet} />
         <EventCardsGridContainer
           eventStatusIndex={EventStatus.Bet}
           sortBy={sortBy}

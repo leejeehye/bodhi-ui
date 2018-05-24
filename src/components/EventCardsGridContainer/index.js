@@ -175,10 +175,12 @@ export default class EventCardsGrid extends Component {
 
   executeGraphRequest(eventStatusIndex, sortBy, limit, skip, walletAddresses) {
     const { getActionableTopics, getOracles } = this.props;
-    const sortOption = sortBy.sortOption || 'endTime';
-    const sortDirection = sortBy.sortOrder || SortBy.Ascending;
+    let sortOption = sortBy.sortOption || 'endTime';
+    let sortDirection = sortBy.sortOrder || SortBy.Ascending;
     switch (eventStatusIndex) {
       case EventStatus.Bet: {
+        sortOption = sortBy.sortOption || 'endTime';
+        sortDirection = sortBy.sortOrder || SortBy.Ascending;
         getOracles(
           [
             { token: Token.Qtum, status: OracleStatus.Voting },
@@ -191,6 +193,8 @@ export default class EventCardsGrid extends Component {
         break;
       }
       case EventStatus.Set: {
+        sortOption = sortBy.sortOption || 'resultSetEndTime';
+        sortDirection = sortBy.sortOrder || SortBy.Ascending;
         const filters = [{ token: Token.Qtum, status: OracleStatus.OpenResultSet }];
         _.each(walletAddresses, (addressObj) => {
           filters.push({
@@ -202,13 +206,15 @@ export default class EventCardsGrid extends Component {
 
         getOracles(
           filters,
-          { field: 'resultSetEndTime', direction: sortDirection },
+          { field: sortOption, direction: sortDirection },
           limit,
           skip,
         );
         break;
       }
       case EventStatus.Vote: {
+        sortOption = sortBy.sortOption || 'startTime';
+        sortDirection = sortBy.sortOrder || SortBy.Descending;
         getOracles(
           [
             { token: Token.Bot, status: OracleStatus.Voting },

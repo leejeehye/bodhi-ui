@@ -9,7 +9,7 @@ import EventCardsGridContainer from '../../components/EventCardsGridContainer/in
 import EventHistory from './scenes/EventHistory/index';
 import { RouterPath, EventStatus } from '../../constants';
 import styles from './styles';
-
+import SortingPicker from '../../components/SortingPicker';
 const TAB_SET = 0;
 const TAB_FINALIZE = 1;
 const TAB_WITHDRAW = 2;
@@ -102,7 +102,7 @@ export default class Activities extends Component {
           <Tab label={this.props.intl.formatMessage(messages.history)} />
         </Tabs>
         <div className={classes.activitiesTabContainer}>
-          {tabIdx === TAB_SET && <EventCardsGridContainer eventStatusIndex={EventStatus.Set} />}
+          {tabIdx === TAB_SET && (<span><SortingPicker eventStatusIndex={EventStatus.Set} /><EventCardsGridContainer eventStatusIndex={EventStatus.Set} /></span>)}
           {tabIdx === TAB_FINALIZE && <EventCardsGridContainer eventStatusIndex={EventStatus.Finalize} />}
           {tabIdx === TAB_WITHDRAW && <EventCardsGridContainer eventStatusIndex={EventStatus.Withdraw} />}
           {tabIdx === TAB_HISTORY && <EventHistory history={history} />}
