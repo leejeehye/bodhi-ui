@@ -387,14 +387,10 @@ export function* createBetTxHandler() {
     } catch (error) {
       yield put({
         type: actions.CREATE_BET_TX_RETURN,
-<<<<<<< Updated upstream
-        error,
-=======
         error: {
           ...error,
           route: `${Routes.graphql.http}/createBetTx`,
         },
->>>>>>> Stashed changes
       });
     }
   });
@@ -424,14 +420,10 @@ export function* createSetResultTxHandler() {
     } catch (error) {
       yield put({
         type: actions.CREATE_SET_RESULT_TX_RETURN,
-<<<<<<< Updated upstream
-        error,
-=======
         error: {
           ...error,
           route: `${Routes.graphql.http}/createSetResultTx`,
         },
->>>>>>> Stashed changes
       });
     }
   });
